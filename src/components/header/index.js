@@ -3,7 +3,7 @@ import '../../styles/Header.css';
 
 const index = ({ userPhoto }) => {
 	return (
-		<div className='header'>
+		<div className='header' style={{ backgroundColor: '#c1bac2' }}>
 			<div className='header__logo'>
 				<span>Extra Drive</span>
 			</div>
