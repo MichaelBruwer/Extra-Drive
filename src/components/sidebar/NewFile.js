@@ -45,40 +45,51 @@ const NewFile = () => {
 	const handleChange = (e) => {
 		if (e.target.files[0]) {
 			setFile(e.target.files[0]);
-
-			storage
-				.ref(`files/${file.name}`)
-				.put(file)
-				.then((snapshot) => {
-					console.log(snapshot);
-
-					storage
-						.ref('files')
-						.child(file.name)
-						.getDownloadURL()
-						.then((url) => {
-							db.collection('myfiles').add({
-								timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-								caption: file.name,
-								fileUrl: url,
-								size: snapshot._delegate.bytesTransferred,
-							});
-							setUploading(false);
-							setOpen(false);
-							setFile(null);
-						});
-				});
 		}
 	};
 
 	const handleUpload = () => {
 		setUploading(true);
+
+		storage
+			.ref(`files/${file.name}`)
+			.put(file)
+			.then((snapshot) => {
+				console.log(snapshot);
+
+				storage
+					.ref('files')
+					.child(file.name)
+					.getDownloadURL()
+					.then((url) => {
+						//post image inside the db
+
+						db.collection('myFiles').add({
+							timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+							caption: file.name,
+							fileUrl: url,
+							size: snapshot._delegate.bytesTransferred,
+						});
+
+						setUploading(false);
+						setOpen(false);
+						setFile(null);
+					});
+
+				storage
+					.ref('files')
+					.child(file.name)
+					.getMetadata()
+					.then((meta) => {
+						console.log(meta.size);
+					});
+			});
 	};
 
 	return (
 		<div className='newFile'>
 			<div className='newFile__container' onClick={handleOpen}>
-				<AddIcon />
+				<AddIcon fontSize='large' />
 				<p>New</p>
 			</div>
 
@@ -93,7 +104,7 @@ const NewFile = () => {
 						<p> uploading... </p>
 					) : (
 						<>
-							<input tyoe='file' onChange={handleChange} />
+							<input type='file' onChange={handleChange} />
 							<button onClick={handleUpload}>Upload</button>
 						</>
 					)}
